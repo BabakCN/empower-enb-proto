@@ -54,7 +54,9 @@ typedef enum __ep_action_type {
 	EP_ACT_MAC_REPORT     =  6, /* Report coming from MAC layer */
 	EP_ACT_HANDOVER       =  7, /* Hand an UE over another eNB */
 	EP_ACT_RAN_SETUP      =  9, /* RAN setup operation */
-	EP_ACT_RAN_SLICE      = 10  /* Ran Slice Setup request */
+	EP_ACT_RAN_SLICE      = 10,  /* Ran Slice Setup request */
+	EP_ACT_PHY_REPORT     = 11,	/* Report coming from MAC layer */
+	EP_ACT_PHY_MEASURE    = 12
 } ep_act_type;
 
 #ifdef __cplusplus

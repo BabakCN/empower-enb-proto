@@ -1,89 +1,73 @@
-/* Copyright (c) 2017 Kewin Rausch
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 
 #include <netinet/in.h>
 
 #include <emproto.h>
+//#include "epphyrep.h"   //Why this one is not exist in epmacrep.c
 
-int epf_macrep_rep(
+int epf_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
-	ep_macrep_det * report)
+	ep_phyrep_det * report)
 {
-	ep_macrep_rep * rep = (ep_macrep_rep *)buf;  // Cast message structure on buf 
+	ep_phyrep_rep * rep = (ep_phyrep_rep *)buf;  // Cast message structure on buf
 
-	if(size < sizeof(ep_macrep_rep)) { // Checking if message will be longer than given buffer 
+	if(size < sizeof(ep_phyrep_rep)) { // Checking if message will be longer than given buffer
 		ep_dbg_log("F - MREP Rep: Not enough space!\n");
 		return -1;
 	}
 
-	rep->DL_prbs_used   = htonl(report->DL_prbs_used); // Fill the message fields.... htonXXX means "Host to Network"
-	rep->DL_prbs_total  = report->DL_prbs_total;
-	rep->UL_prbs_used   = htonl(report->UL_prbs_used);
-	rep->UL_prbs_total  = report->UL_prbs_total;
+	rep->tx_gain   = report->tx_gain;
 
-	ep_dbg_dump(EP_DBG_2"F - MREP Rep: ", buf, sizeof(ep_macrep_rep));
 
-	return sizeof(ep_macrep_rep);  // Return the header size
+	ep_dbg_dump(EP_DBG_2"F - MREP Rep: ", buf, sizeof(ep_phyrep_rep));
+
+	return sizeof(ep_phyrep_rep);  // Return the header size
 }
 
-int epp_macrep_rep(
+int epp_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
-	ep_macrep_det * report)
+	ep_phyrep_det * report)
 {
-	ep_macrep_rep * rep = (ep_macrep_rep *)buf;
+	ep_phyrep_rep * rep = (ep_phyrep_rep *)buf;
 
-	if(size < sizeof(ep_macrep_rep)) {
+	if(size < sizeof(ep_phyrep_rep)) {
 		ep_dbg_log("P - MREP Rep: Not enough space!\n");
 		return -1;
 	}
 
 	if(report) {
-		report->DL_prbs_used   = ntohl(rep->DL_prbs_used);
-		report->DL_prbs_total  = rep->DL_prbs_total;
-		report->UL_prbs_used   = ntohl(rep->UL_prbs_used);
-		report->UL_prbs_total  = rep->UL_prbs_total;
+		report->tx_gain   = rep->tx_gain;
+
 	}
 
-	ep_dbg_dump(EP_DBG_2"P - MREP Rep: ", buf, sizeof(ep_macrep_rep));
+	ep_dbg_dump(EP_DBG_2"P - MREP Rep: ", buf, sizeof(ep_phyrep_rep));
 
 	return EP_SUCCESS;
 }
 
-int epf_macrep_req(char * buf, unsigned int size, uint16_t interval)
+int epf_phyrep_req(char * buf, unsigned int size, uint16_t interval)
 {
-	ep_macrep_req * req = (ep_macrep_req *)buf;
+	ep_phyrep_req * req = (ep_phyrep_req *)buf;
 
-	if(size < sizeof(ep_macrep_req)) {
+	if(size < sizeof(ep_phyrep_req)) {
 		ep_dbg_log(EP_DBG_2"F - MREP Req: Not enough space!\n");
 		return -1;
 	}
 
 	req->interval = htons(interval);
 
-	ep_dbg_dump(EP_DBG_2"F - MREP Req: ", buf, sizeof(ep_macrep_req));
+	ep_dbg_dump(EP_DBG_2"F - MREP Req: ", buf, sizeof(ep_phyrep_req));
 
-	return sizeof(ep_macrep_req);
+	return sizeof(ep_phyrep_req);
 }
 
-int epp_macrep_req(char * buf, unsigned int size, uint16_t * interval)
+int epp_phyrep_req(char * buf, unsigned int size, uint16_t * interval)
 {
-	ep_macrep_req * req = (ep_macrep_req *)buf;
+	ep_phyrep_req * req = (ep_phyrep_req *)buf;
 
-	if(size < sizeof(ep_macrep_req)) {
+	if(size < sizeof(ep_phyrep_req)) {
 		ep_dbg_log(EP_DBG_2"P - MREP Req: Not enough space!\n");
 		return -1;
 	}
@@ -92,7 +76,7 @@ int epp_macrep_req(char * buf, unsigned int size, uint16_t * interval)
 		*interval = ntohs(req->interval);
 	}
 
-	ep_dbg_dump(EP_DBG_2"P - MREP Req: ", buf, sizeof(ep_macrep_req));
+	ep_dbg_dump(EP_DBG_2"P - MREP Req: ", buf, sizeof(ep_phyrep_req));
 
 	return EP_SUCCESS;
 }
@@ -101,7 +85,7 @@ int epp_macrep_req(char * buf, unsigned int size, uint16_t * interval)
  * Public API                                                                 *
  ******************************************************************************/
 
-int epf_trigger_macrep_rep_fail(
+int epf_trigger_phyrep_rep_fail(
 	char *       buf,
 	unsigned int size,
 	enb_id_t     enb_id,
@@ -112,7 +96,7 @@ int epf_trigger_macrep_rep_fail(
 	int ret= 0;
 
 	if(!buf) {
-		ep_dbg_log(EP_DBG_0"F - Single MACREP Fail: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"F - Single phyREP Fail: Invalid buffer!\n");
 		return -1;
 	}
 
@@ -133,7 +117,7 @@ int epf_trigger_macrep_rep_fail(
 	ms   = epf_trigger(
 		buf + ret,
 		size - ret,
-		EP_ACT_MAC_REPORT,
+		EP_ACT_PHY_REPORT,
 		EP_OPERATION_FAIL);
 
 	if(ms < 0) {
@@ -141,7 +125,7 @@ int epf_trigger_macrep_rep_fail(
 	}
 
 	ret += ms;
-	ms   = epf_macrep_rep(buf + ret, size - ret, 0);
+	ms   = epf_phyrep_rep(buf + ret, size - ret, 0);
 
 	if(ms < 0) {
 		return ms;
@@ -154,7 +138,7 @@ int epf_trigger_macrep_rep_fail(
 	return ret;
 }
 
-int epf_trigger_macrep_rep_ns(
+int epf_trigger_phyrep_rep_ns(
 	char *       buf,
 	unsigned int size,
 	enb_id_t     enb_id,
@@ -165,7 +149,7 @@ int epf_trigger_macrep_rep_ns(
 	int ret= 0;
 
 	if(!buf) {
-		ep_dbg_log(EP_DBG_0"F - Single MACREP NS: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"F - Single phyREP NS: Invalid buffer!\n");
 		return -1;
 	}
 
@@ -186,7 +170,7 @@ int epf_trigger_macrep_rep_ns(
 	ms   = epf_trigger(
 		buf + ret,
 		size - ret,
-		EP_ACT_MAC_REPORT,
+		EP_ACT_PHY_REPORT,
 		EP_OPERATION_NOT_SUPPORTED);
 
 	if(ms < 0) {
@@ -194,7 +178,7 @@ int epf_trigger_macrep_rep_ns(
 	}
 
 	ret += ms;
-	ms   = epf_macrep_rep(buf + ret, size - ret, 0);
+	ms   = epf_phyrep_rep(buf + ret, size - ret, 0);
 
 	if(ms < 0) {
 		return ms;
@@ -207,19 +191,19 @@ int epf_trigger_macrep_rep_ns(
 	return ret;
 }
 
-int epf_trigger_macrep_rep(
+int epf_trigger_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
 	enb_id_t        enb_id,
 	cell_id_t       cell_id,
 	mod_id_t        mod_id,
-	ep_macrep_det * det)
+	ep_phyrep_det * det)
 {
 	int ms = 0;
 	int ret= 0;
 
 	if(!buf || !det) {
-		ep_dbg_log(EP_DBG_0"F - Single MACREP Rep: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"F - Single phyREP Rep: Invalid buffer!\n");
 		return -1;
 	}
 
@@ -240,7 +224,7 @@ int epf_trigger_macrep_rep(
 	ms   = epf_trigger( // Format the trigger header into buf, after main header
 		buf + ret,
 		size - ret,
-		EP_ACT_MAC_REPORT,
+		EP_ACT_PHY_REPORT,
 		EP_OPERATION_SUCCESS);
 
 	if(ms < 0) {
@@ -248,7 +232,7 @@ int epf_trigger_macrep_rep(
 	}
 
 	ret += ms;
-	ms   = epf_macrep_rep(buf + ret, size - ret, det);  // Real encoding of message
+	ms   = epf_phyrep_rep(buf + ret, size - ret, det);  // Real encoding of message
 
 	if(ms < 0) {
 		return ms;
@@ -257,27 +241,27 @@ int epf_trigger_macrep_rep(
 	ret += ms;
 
 	epf_msg_length(buf, size, ret); // Fill the main header with the right message size
- 
+
 	return ret;
 }
 
-int epp_trigger_macrep_rep(
+int epp_trigger_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
-	ep_macrep_det * det)
+	ep_phyrep_det * det)
 {
 	if(!buf) {
-		ep_dbg_log(EP_DBG_0"P - Single MACREP Rep: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"P - Single phyREP Rep: Invalid buffer!\n");
 		return -1;
 	}
 
-	return epp_macrep_rep(
+	return epp_phyrep_rep(
 		buf + sizeof(ep_hdr) + sizeof(ep_t_hdr),
 		size,
 		det);
 }
 
-int epf_trigger_macrep_req(
+int epf_trigger_phyrep_req(
 	char *       buf,
 	unsigned int size,
 	enb_id_t     enb_id,
@@ -289,7 +273,7 @@ int epf_trigger_macrep_req(
 	int ret= 0;
 
 	if(!buf) {
-		ep_dbg_log(EP_DBG_0"F - Single MACREP Req: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"F - Single phyREP Req: Invalid buffer!\n");
 		return -1;
 	}
 
@@ -310,7 +294,7 @@ int epf_trigger_macrep_req(
 	ms   = epf_trigger(
 		buf + ret,
 		size - ret,
-		EP_ACT_MAC_REPORT,
+		EP_ACT_PHY_REPORT,
 		EP_OPERATION_UNSPECIFIED);
 
 	if(ms < 0) {
@@ -318,7 +302,7 @@ int epf_trigger_macrep_req(
 	}
 
 	ret += ms;
-	ms   = epf_macrep_req(buf + ret, size - ret, interval);
+	ms   = epf_phyrep_req(buf + ret, size - ret, interval);
 
 	if(ms < 0) {
 		return ms;
@@ -330,18 +314,22 @@ int epf_trigger_macrep_req(
 	return ret;
 }
 
-int epp_trigger_macrep_req(
+int epp_trigger_phyrep_req(
 	char *          buf,
 	unsigned int    size,
 	uint16_t *      interval)
 {
 	if(!buf) {
-		ep_dbg_log(EP_DBG_0"P - Single MACREP Req: Invalid buffer!\n");
+		ep_dbg_log(EP_DBG_0"P - Single phyREP Req: Invalid buffer!\n");
 		return -1;
 	}
 
-	return epp_macrep_req(
+	return epp_phyrep_req(
 		buf + sizeof(ep_hdr) + sizeof(ep_t_hdr),
 		size,
 		interval);
 }
+
+
+
+

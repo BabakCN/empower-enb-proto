@@ -52,6 +52,7 @@ extern "C"
 #include "epuerep.h"
 #include "epuemeas.h"
 #include "epmacrep.h"
+#include "epphyrep.h"
 #include "epho.h"
 #include "epRAN.h"
 

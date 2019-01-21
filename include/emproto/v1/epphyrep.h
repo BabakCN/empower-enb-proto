@@ -1,25 +1,12 @@
-/* Copyright (c) 2017 Kewin Rausch
+
+
+/*    PHY REPORT
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This message provides details about PHY layer reporting
  */
 
-/*    MAC REPORT
- *
- * This message provides details about MAC layer reporting
- */
-
-#ifndef __EMAGE_CELL_MAC_REPORT_H
-#define __EMAGE_CELL_MAC_REPORT_H
+#ifndef __EMAGE_CELL_PHY_REPORT_H
+#define __EMAGE_CELL_PHY_REPORT_H
 
 #include <stdint.h>
 
@@ -31,30 +18,30 @@ extern "C"
 #endif /* __cplusplus */
 
 /*
- * Cell MAC report messages:
+ * Cell phy report messages:
  */
 
-typedef struct __ep_cell_mac_report_reply {   //request from controller
-	uint8_t  DL_prbs_total;
-	uint32_t DL_prbs_used;
-	uint8_t  UL_prbs_total;
-	uint32_t UL_prbs_used;
-}__attribute__((packed)) ep_macrep_rep; // "Packed" means do not align in RAM
+typedef struct __ep_cell_phy_report_reply {   //request from controller
 
-typedef struct __ep_cell_mac_report_request {
+
+	uint32_t tx_gain;
+
+}__attribute__((packed)) ep_phyrep_rep; // "Packed" means do not align in RAM
+
+typedef struct __ep_cell_phy_report_request {
 	uint16_t interval;
-}__attribute__((packed)) ep_macrep_req;
+}__attribute__((packed)) ep_phyrep_req;
 
 /******************************************************************************
  * Opaque structures                                                          *
  ******************************************************************************/
 
-typedef struct ep_cell_mac_report_details {  //a layer at the middle
-	uint8_t  DL_prbs_total;
-	uint32_t DL_prbs_used;
-	uint8_t  UL_prbs_total;
-	uint32_t UL_prbs_used;
-} ep_macrep_det;
+typedef struct ep_cell_phy_report_details {  //a layer at the middle
+
+	uint32_t tx_gain;
+	//uint32_t bw;
+
+} ep_phyrep_det;
 
 /******************************************************************************
  * Operation on single-event messages                                         *
@@ -68,47 +55,47 @@ typedef struct ep_cell_mac_report_details {  //a layer at the middle
  * Operation on trigger-event messages                                        *
  ******************************************************************************/
 
-/* Format a MAC report negative reply.
+/* Format a phy report negative reply.
  * Returns the size of the message, or a negative error number.
  */
-int epf_trigger_macrep_rep_fail(
+int epf_trigger_phyrep_rep_fail(
 	char *       buf,
 	unsigned int size,
 	enb_id_t     enb_id,
 	cell_id_t    cell_id,
 	mod_id_t     mod_id);
 
-/* Format a MAC report not-supported reply.
+/* Format a phy report not-supported reply.
  * Returns the size of the message, or a negative error number.
  */
-int epf_trigger_macrep_rep_ns(
+int epf_trigger_phyrep_rep_ns(
 	char *       buf,
 	unsigned int size,
 	enb_id_t     enb_id,
 	cell_id_t    cell_id,
 	mod_id_t     mod_id);
 
-/* Format a MAC report reply.
+/* Format a phy report reply.
  * Returns the size of the message, or a negative error number.
  */
-int epf_trigger_macrep_rep(
+int epf_trigger_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
 	enb_id_t        enb_id,
 	cell_id_t       cell_id,
 	mod_id_t        mod_id,
-	ep_macrep_det * det);
+	ep_phyrep_det * det);
 
-/* Parse a MAC report reply looking for the desired fields */
-int epp_trigger_macrep_rep(
+/* Parse a phy report reply looking for the desired fields */
+int epp_trigger_phyrep_rep(
 	char *          buf,
 	unsigned int    size,
-	ep_macrep_det * det);
+	ep_phyrep_det * det);
 
-/* Format a MAC report request.
+/* Format a phy report request.
  * Returns the size of the message, or a negative error number.
  */
-int epf_trigger_macrep_req(
+int epf_trigger_phyrep_req(
 	char *          buf,
 	unsigned int    size,
 	enb_id_t        enb_id,
@@ -117,8 +104,8 @@ int epf_trigger_macrep_req(
 	/* Interval for statistic measurements, in 'ms' */
 	uint16_t        interval);
 
-/* Parse a MAC report request looking for the desired fields */
-int epp_trigger_macrep_req(
+/* Parse a phy report request looking for the desired fields */
+int epp_trigger_phyrep_req(
 	char *          buf,
 	unsigned int    size,
 	uint16_t *      interval);
@@ -127,4 +114,4 @@ int epp_trigger_macrep_req(
 }
 #endif /* __cplusplus */
 
-#endif /* __EMAGE_CELL_MAC_REPORT_H */
+#endif /* __EMAGE_CELL_phy_REPORT_H */
