@@ -30,6 +30,7 @@ typedef struct __ep_cell_phy_report_reply {   //request from controller
 
 typedef struct __ep_cell_phy_report_request {
 	uint16_t interval;
+	uint32_t tx_gain;
 }__attribute__((packed)) ep_phyrep_req;
 
 /******************************************************************************
@@ -102,13 +103,15 @@ int epf_trigger_phyrep_req(
 	cell_id_t       cell_id,
 	mod_id_t        mod_id,
 	/* Interval for statistic measurements, in 'ms' */
-	uint16_t        interval);
+	uint16_t        interval,
+	ep_phyrep_det * det);
 
 /* Parse a phy report request looking for the desired fields */
 int epp_trigger_phyrep_req(
 	char *          buf,
 	unsigned int    size,
-	uint16_t *      interval);
+	uint16_t *      interval,
+	ep_phyrep_det * det);
 
 #ifdef __cplusplus
 }

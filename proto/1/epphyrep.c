@@ -47,7 +47,7 @@ int epp_phyrep_rep(
 	return EP_SUCCESS;
 }
 
-int epf_phyrep_req(char * buf, unsigned int size, uint16_t interval)
+int epf_phyrep_req(char * buf, unsigned int size, uint16_t interval, ep_phyrep_det * det)
 {
 	ep_phyrep_req * req = (ep_phyrep_req *)buf;
 
@@ -57,13 +57,14 @@ int epf_phyrep_req(char * buf, unsigned int size, uint16_t interval)
 	}
 
 	req->interval = htons(interval);
+	req->tx_gain  = htonl(det->tx_gain);
 
 	ep_dbg_dump(EP_DBG_2"F - MREP Req: ", buf, sizeof(ep_phyrep_req));
 
 	return sizeof(ep_phyrep_req);
 }
 
-int epp_phyrep_req(char * buf, unsigned int size, uint16_t * interval)
+int epp_phyrep_req(char * buf, unsigned int size, uint16_t * interval, ep_phyrep_det * det)
 {
 	ep_phyrep_req * req = (ep_phyrep_req *)buf;
 
@@ -73,7 +74,8 @@ int epp_phyrep_req(char * buf, unsigned int size, uint16_t * interval)
 	}
 
 	if(interval) {
-		*interval = ntohs(req->interval);
+		*interval    = ntohs(req->interval);
+		det->tx_gain = ntohl(req->tx_gain);
 	}
 
 	ep_dbg_dump(EP_DBG_2"P - MREP Req: ", buf, sizeof(ep_phyrep_req));
@@ -267,7 +269,8 @@ int epf_trigger_phyrep_req(
 	enb_id_t     enb_id,
 	cell_id_t    cell_id,
 	mod_id_t     mod_id,
-	uint16_t     interval)
+	uint16_t     interval,
+	ep_phyrep_det * det)
 {
 	int ms = 0;
 	int ret= 0;
@@ -302,7 +305,7 @@ int epf_trigger_phyrep_req(
 	}
 
 	ret += ms;
-	ms   = epf_phyrep_req(buf + ret, size - ret, interval);
+	ms   = epf_phyrep_req(buf + ret, size - ret, interval, det);
 
 	if(ms < 0) {
 		return ms;
@@ -317,7 +320,8 @@ int epf_trigger_phyrep_req(
 int epp_trigger_phyrep_req(
 	char *          buf,
 	unsigned int    size,
-	uint16_t *      interval)
+	uint16_t *      interval,
+	ep_phyrep_det * det)
 {
 	if(!buf) {
 		ep_dbg_log(EP_DBG_0"P - Single phyREP Req: Invalid buffer!\n");
@@ -327,7 +331,8 @@ int epp_trigger_phyrep_req(
 	return epp_phyrep_req(
 		buf + sizeof(ep_hdr) + sizeof(ep_t_hdr),
 		size,
-		interval);
+		interval,
+		det);
 }
 
 
